@@ -19,7 +19,9 @@ Godex is a modern web application that provides an intelligent coding assistant 
 
 - **Frontend**: React 19 with TypeScript
 - **Build Tool**: Vite 7
-- **AI Model**: Google Gemini 2.5 Pro
+- **AI SDK**: Vercel AI SDK (@ai-sdk/google)
+- **AI Model**: Google Gemini 2.5 Pro with thinking mode
+- **UI Components**: AI Elements (optional)
 - **Styling**: Custom CSS with modern design patterns
 - **Code Highlighting**: react-syntax-highlighter with Prism
 - **Markdown**: react-markdown for rich text rendering
@@ -46,11 +48,13 @@ Godex is a modern web application that provides an intelligent coding assistant 
 ## Key Capabilities
 
 ### Gemini 2.5 Pro Features Used
-- **Advanced Reasoning**: Complex problem-solving in code, math, and STEM
-- **Long Context**: Up to 1,048,576 input tokens
+- **Advanced Reasoning**: Complex problem-solving in code, math, and STEM with thinking mode
+- **Long Context**: Up to 1,048,576 input tokens (1M+ tokens)
+- **Thinking Mode**: Enhanced reasoning with configurable thinking budget (up to 24K tokens)
+- **Vercel AI SDK**: Streaming support with `streamText` and `generateText`
+- **Reasoning Display**: Shows AI's thinking process when available
 - **Code Execution**: Built-in code execution capabilities
 - **Function Calling**: Structured API interactions
-- **Thinking Mode**: Enhanced reasoning for complex tasks
 
 ### Application Features
 - Chat interface with message history
@@ -62,7 +66,14 @@ Godex is a modern web application that provides an intelligent coding assistant 
 
 ## Recent Changes
 
-**October 15, 2025**
+**October 15, 2025 - v2.0**
+- **Major Upgrade**: Migrated to Vercel AI SDK for better streaming and integration
+- Added Gemini 2.5 Pro thinking mode with configurable thinking budget
+- Implemented reasoning/thinking display in the UI (collapsible sections)
+- Enhanced error handling and response processing
+- Added AI Elements package for potential future UI enhancements
+
+**October 15, 2025 - v1.0**
 - Initial project setup with Vite + React + TypeScript
 - Integrated Gemini 2.5 Pro API
 - Created modern UI inspired by OpenAI Codex
