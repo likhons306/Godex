@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { sendMessage, type Message } from './lib/gemini';
+import { streamMessage, type Message } from './lib/gemini';
 import './App.css';
 
 function App() {
@@ -34,6 +34,8 @@ function App() {
       content: input.trim(),
       timestamp: Date.now(),
     };
+    
+    const userInput = input.trim();
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -41,17 +43,63 @@ function App() {
     setError(null);
 
     try {
-      const response = await sendMessage(messages, input.trim());
-      const assistantMessage: Message = {
+      // Create a temporary message for streaming
+      const tempMessage: Message = {
         role: 'assistant',
-        content: response.text,
+        content: '',
         timestamp: Date.now(),
-        reasoning: response.reasoning,
       };
-      setMessages(prev => [...prev, assistantMessage]);
+      
+      let fullContent = '';
+      let reasoning = '';
+      
+      // Add the message to the list
+      setMessages(prev => [...prev, tempMessage]);
+      
+      // Stream the response (streamMessage will add the userInput to history internally)
+      await streamMessage(
+        messages,
+        userInput,
+        // On each chunk, update the message content
+        (chunk) => {
+          fullContent += chunk;
+          setMessages(prev => {
+            const newMessages = [...prev];
+            const lastIndex = newMessages.length - 1;
+            if (newMessages[lastIndex]?.role === 'assistant') {
+              newMessages[lastIndex] = {
+                ...newMessages[lastIndex],
+                content: fullContent,
+              };
+            }
+            return newMessages;
+          });
+        },
+        // On reasoning available
+        (reasoningText) => {
+          reasoning = reasoningText;
+        },
+        // On complete
+        () => {
+          // Update the final message with reasoning
+          if (reasoning) {
+            setMessages(prev => {
+              const newMessages = [...prev];
+              const lastIndex = newMessages.length - 1;
+              if (newMessages[lastIndex]?.role === 'assistant') {
+                newMessages[lastIndex] = {
+                  ...newMessages[lastIndex],
+                  reasoning: reasoning,
+                };
+              }
+              return newMessages;
+            });
+          }
+          setIsLoading(false);
+        }
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
       setIsLoading(false);
     }
   };
