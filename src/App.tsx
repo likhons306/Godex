@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { streamMessageFromAPI } from './lib/api-client';
-import type { Message } from './lib/gemini';
+import { streamMessageFromAPI } from '@/lib/api-client';
+import type { Message as MessageType } from '@/lib/gemini';
+import { Conversation } from '@/components/ai-elements/conversation';
+import { Message, MessageContent } from '@/components/ai-elements/message';
+import { PromptInput, PromptInputTextarea } from '@/components/ai-elements/prompt-input';
+import { Button } from '@/components/ui/button';
 import './App.css';
 
 function App() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,17 +27,31 @@ function App() {
     inputRef.current?.focus();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  // Load messages from localStorage on initial render
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chatHistory');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    }
+  }, []);
 
-    const userMessage: Message = {
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatHistory', JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  const handleSubmit = async (text: string) => {
+    if (!text.trim() || isLoading) return;
+
+    const userMessage: MessageType = {
       role: 'user',
-      content: input.trim(),
+      content: text.trim(),
       timestamp: Date.now(),
     };
     
-    const userInput = input.trim();
+    const userInput = text.trim();
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -45,7 +60,7 @@ function App() {
 
     try {
       // Create a temporary message for streaming
-      const tempMessage: Message = {
+      const tempMessage: MessageType = {
         role: 'assistant',
         content: '',
         timestamp: Date.now(),
@@ -105,12 +120,6 @@ function App() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
 
   return (
     <div className="app">
@@ -127,100 +136,35 @@ function App() {
       </header>
 
       <main className="main">
-        <div className="chat-container">
-          {messages.length === 0 ? (
-            <div className="welcome">
-              <h2>What should we code next?</h2>
-              <p>
-                Godex is your state-of-the-art AI coding assistant, capable of reasoning
-                over complex problems in code, math, and STEM. I can analyze large
-                datasets, codebases, and documents using long context.
-              </p>
-              <div className="suggestions">
-                <button
-                  className="suggestion"
-                  onClick={() => setInput('Explain how async/await works in JavaScript')}
-                >
-                  Explain async/await in JavaScript
-                </button>
-                <button
-                  className="suggestion"
-                  onClick={() => setInput('Help me optimize a React component for performance')}
-                >
-                  Optimize React performance
-                </button>
-                <button
-                  className="suggestion"
-                  onClick={() => setInput('Write a Python script to analyze CSV data')}
-                >
-                  Analyze CSV data with Python
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="messages">
-              {messages.map((msg, idx) => (
-                <div key={idx} className={`message ${msg.role}`}>
-                  <div className="message-avatar">
-                    {msg.role === 'user' ? '👤' : '✦'}
-                  </div>
-                  <div className="message-content">
-                    {msg.reasoning && (
-                      <details className="reasoning">
-                        <summary>🧠 Thinking Process</summary>
-                        <div className="reasoning-content">
-                          <ReactMarkdown>{msg.reasoning}</ReactMarkdown>
-                        </div>
-                      </details>
-                    )}
-                    <ReactMarkdown
-                      components={{
-                        code({ node, className, children, ...props }) {
-                          const inline = !className;
-                          const match = /language-(\w+)/.exec(className || '');
-                          const language = match ? match[1] : '';
-                          
-                          return inline ? (
-                            <code className="inline-code" {...props}>
-                              {children}
-                            </code>
-                          ) : (
-                            <SyntaxHighlighter
-                              style={vscDarkPlus}
-                              language={language}
-                              PreTag="div"
-                              customStyle={{
-                                borderRadius: '8px',
-                                margin: '1em 0',
-                              }}
-                            >
-                              {String(children).replace(/\n$/, '')}
-                            </SyntaxHighlighter>
-                          );
-                        },
-                      }}
-                    >
-                      {msg.content}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="message model">
-                  <div className="message-avatar">✦</div>
-                  <div className="message-content">
-                    <div className="thinking">
-                      <span></span>
-                      <span></span>
-                      <span></span>
+        <Conversation>
+          {messages.map((msg, idx) => (
+            <Message key={idx} from={msg.role}>
+              <MessageContent>
+                {msg.reasoning && (
+                  <details className="reasoning">
+                    <summary>🧠 Thinking Process</summary>
+                    <div className="reasoning-content">
+                      {msg.reasoning}
                     </div>
-                  </div>
+                  </details>
+                )}
+                {msg.content}
+              </MessageContent>
+            </Message>
+          ))}
+          {isLoading && (
+            <Message from="assistant">
+              <MessageContent>
+                <div className="thinking">
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+              </MessageContent>
+            </Message>
           )}
-        </div>
+          <div ref={messagesEndRef} />
+        </Conversation>
 
         {error && (
           <div className="error-banner">
@@ -228,28 +172,28 @@ function App() {
           </div>
         )}
 
-        <form className="input-form" onSubmit={handleSubmit}>
-          <div className="input-wrapper">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Godex anything about code, math, or STEM..."
-              className="input"
-              rows={1}
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              className="send-button"
-              disabled={!input.trim() || isLoading}
-            >
-              {isLoading ? '⋯' : '→'}
-            </button>
-          </div>
-          <p className="input-hint">Press Enter to send, Shift+Enter for new line</p>
-        </form>
+        <PromptInput
+          onSubmit={async ({ text }) => {
+            if (text) {
+              await handleSubmit(text);
+            }
+          }}
+          className="input-form"
+        >
+          <PromptInputTextarea
+            value={input}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
+            placeholder="Ask Godex anything about code, math, or STEM..."
+            disabled={isLoading}
+          />
+          <Button
+            type="submit"
+            disabled={!input.trim() || isLoading}
+            className="send-button"
+          >
+            {isLoading ? '⋯' : '→'}
+          </Button>
+        </PromptInput>
       </main>
     </div>
   );
