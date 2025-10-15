@@ -1,72 +1,155 @@
-import { GoogleGenAI } from "@google/genai";
-
-// Gemini API integration using the @google/genai SDK
-// Using Gemini 2.5 Pro for advanced reasoning and coding tasks
-const ai = new GoogleGenAI({ 
-  apiKey: import.meta.env.VITE_GEMINI_API_KEY || "" 
-});
+import { google } from "@ai-sdk/google";
+import { streamText, generateText } from "ai";
 
 export interface Message {
-  role: 'user' | 'model';
+  role: 'user' | 'assistant';
   content: string;
   timestamp: number;
+  reasoning?: string;
 }
 
-export async function sendMessage(
-  messages: Message[], 
-  userMessage: string
-): Promise<string> {
+// Stream messages with thinking/reasoning support using AI SDK
+export async function streamMessage(
+  messages: Message[],
+  userMessage: string,
+  onChunk: (text: string) => void,
+  onReasoning?: (reasoning: string) => void,
+  onComplete?: () => void
+) {
   try {
-    // Convert our message format to Gemini format
+    // Convert messages to AI SDK format
     const history = messages.map(msg => ({
       role: msg.role,
-      parts: [{ text: msg.content }]
+      content: msg.content,
     }));
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
-      config: {
-        systemInstruction: `You are Godex, a state-of-the-art AI coding assistant powered by Gemini 2.5 Pro. 
+    const result = streamText({
+      model: google('gemini-2.5-pro'),
+      system: `You are Godex, a state-of-the-art AI coding assistant powered by Gemini 2.5 Pro. 
 You are capable of reasoning over complex problems in code, math, and STEM. 
 You can analyze large datasets, codebases, and documents using long context.
 You provide clear, detailed explanations and high-quality code solutions.
 When writing code, always include comments and follow best practices.
 Format your responses in markdown for better readability.`,
-        temperature: 0.7,
-        maxOutputTokens: 8192,
-      },
-      contents: [
+      messages: [
         ...history,
         {
           role: 'user',
-          parts: [{ text: userMessage }]
-        }
+          content: userMessage,
+        },
       ],
+      temperature: 0.7,
+      providerOptions: {
+        google: {
+          thinkingConfig: {
+            thinkingBudget: 8192,
+            includeThoughts: true,
+          },
+        },
+      },
     });
 
-    return response.text || "I apologize, but I couldn't generate a response. Please try again.";
+    // Handle streaming chunks
+    for await (const chunk of result.textStream) {
+      onChunk(chunk);
+    }
+
+    // Handle reasoning/thinking if available
+    const finalResult = await result;
+    const reasoning = await finalResult.reasoning;
+    if (reasoning && reasoning.length > 0) {
+      const reasoningText = reasoning.map((r: any) => r.text).join('\n');
+      onReasoning?.(reasoningText);
+    }
+
+    onComplete?.();
+  } catch (error) {
+    console.error("Gemini streaming error:", error);
+    throw new Error(`Failed to stream response: ${error}`);
+  }
+}
+
+// Generate text without streaming (for simpler use cases)
+export async function sendMessage(
+  messages: Message[],
+  userMessage: string
+): Promise<{ text: string; reasoning?: string }> {
+  try {
+    const history = messages.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
+    const result = await generateText({
+      model: google('gemini-2.5-pro'),
+      system: `You are Godex, a state-of-the-art AI coding assistant powered by Gemini 2.5 Pro. 
+You are capable of reasoning over complex problems in code, math, and STEM. 
+You can analyze large datasets, codebases, and documents using long context.
+You provide clear, detailed explanations and high-quality code solutions.
+When writing code, always include comments and follow best practices.
+Format your responses in markdown for better readability.`,
+      messages: [
+        ...history,
+        {
+          role: 'user',
+          content: userMessage,
+        },
+      ],
+      temperature: 0.7,
+      providerOptions: {
+        google: {
+          thinkingConfig: {
+            thinkingBudget: 8192,
+            includeThoughts: true,
+          },
+        },
+      },
+    });
+
+    const reasoning = await result.reasoning;
+    return {
+      text: result.text,
+      reasoning: reasoning && reasoning.length > 0 
+        ? reasoning.map((r: any) => r.text).join('\n')
+        : undefined,
+    };
   } catch (error) {
     console.error("Gemini API error:", error);
     throw new Error(`Failed to get response: ${error}`);
   }
 }
 
-export async function analyzeCode(code: string, query: string): Promise<string> {
+// Analyze code with Gemini 2.5 Pro
+export async function analyzeCode(
+  code: string,
+  query: string
+): Promise<{ text: string; reasoning?: string }> {
   try {
     const prompt = `${query}\n\n\`\`\`\n${code}\n\`\`\``;
-    
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
-      config: {
-        systemInstruction: `You are Godex, an expert code analyzer powered by Gemini 2.5 Pro.
+
+    const result = await generateText({
+      model: google('gemini-2.5-pro'),
+      system: `You are Godex, an expert code analyzer powered by Gemini 2.5 Pro.
 Provide detailed analysis, suggestions for improvements, and explain complex concepts clearly.`,
-        temperature: 0.3,
-        maxOutputTokens: 8192,
+      prompt: prompt,
+      temperature: 0.3,
+      providerOptions: {
+        google: {
+          thinkingConfig: {
+            thinkingBudget: 8192,
+            includeThoughts: true,
+          },
+        },
       },
-      contents: prompt,
     });
 
-    return response.text || "Unable to analyze code.";
+    const reasoning = await result.reasoning;
+    return {
+      text: result.text,
+      reasoning: reasoning && reasoning.length > 0 
+        ? reasoning.map((r: any) => r.text).join('\n')
+        : undefined,
+    };
   } catch (error) {
     console.error("Code analysis error:", error);
     throw new Error(`Failed to analyze code: ${error}`);

@@ -43,9 +43,10 @@ function App() {
     try {
       const response = await sendMessage(messages, input.trim());
       const assistantMessage: Message = {
-        role: 'model',
-        content: response,
+        role: 'assistant',
+        content: response.text,
         timestamp: Date.now(),
+        reasoning: response.reasoning,
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
@@ -115,6 +116,14 @@ function App() {
                     {msg.role === 'user' ? '👤' : '✦'}
                   </div>
                   <div className="message-content">
+                    {msg.reasoning && (
+                      <details className="reasoning">
+                        <summary>🧠 Thinking Process</summary>
+                        <div className="reasoning-content">
+                          <ReactMarkdown>{msg.reasoning}</ReactMarkdown>
+                        </div>
+                      </details>
+                    )}
                     <ReactMarkdown
                       components={{
                         code({ node, className, children, ...props }) {

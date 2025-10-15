@@ -199,6 +199,45 @@
   color: var(--accent-primary);
 }
 
+/* Reasoning/Thinking display */
+.reasoning {
+  background: rgba(16, 163, 127, 0.1);
+  border: 1px solid rgba(16, 163, 127, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.reasoning summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--accent-primary);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reasoning summary:hover {
+  opacity: 0.8;
+}
+
+.reasoning-content {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(16, 163, 127, 0.2);
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.reasoning-content p {
+  margin: 0.5rem 0;
+}
+
+.reasoning[open] summary {
+  margin-bottom: 0;
+}
+
 /* Thinking animation */
 .thinking {
   display: flex;
