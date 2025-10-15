@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# Godex: Your AI Coding Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Godex is a state-of-the-art AI coding assistant designed to help developers with complex reasoning tasks in code, math, and STEM. It features a modern, real-time chat interface powered by Google's Gemini 2.5 Pro model.
 
-Currently, two official plugins are available:
+This project serves as a powerful demonstration of how to build AI-native applications using the latest web technologies.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![Godex Screenshot](jules-scratch/verification/verification.png)
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+-   **Real-time, Streaming Responses:** Get answers from the AI as they are being generated.
+-   **Persistent Chat History:** Your conversations are saved locally, so you can pick up where you left off.
+-   **Modern UI:** A clean and intuitive user interface built with `ai-elements` and `shadcn/ui`.
+-   **Extensible Architecture:** A clear and well-documented codebase that is easy to extend and build upon.
 
-## Expanding the ESLint configuration
+## 🚀 Technology Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Godex is built with a modern and powerful technology stack:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+-   **Frontend:**
+    -   **Framework:** React 19
+    -   **Build Tool:** Vite
+    -   **Language:** TypeScript
+    -   **UI Components:** `ai-elements` on top of `shadcn/ui`
+    -   **Styling:** Tailwind CSS
+    -   **AI SDK:** Vercel AI SDK (`@ai-sdk/react`)
+-   **Backend:**
+    -   **Framework:** Express.js
+    -   **Runtime:** Node.js (with `tsx`)
+    -   **AI Provider:** Google Gemini (`@ai-sdk/google`)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+For a more detailed breakdown of the architecture, please see the [architecture documentation](./docs/architecture.md).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📦 Getting Started
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+To get a local copy of Godex up and running, follow these simple steps.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+-   Node.js v18 or later
+-   npm (or your favorite package manager)
+-   A Google Generative AI API key
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/godex.git
+    cd godex
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Set up your environment variables:**
+
+    Create a `.env` file in the root of the project and add your Google Generative AI API key:
+    ```
+    GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+    ```
+
+4.  **Run the development servers:**
+
+    This command will start both the frontend and backend servers in parallel:
+    ```bash
+    npm run dev:all
+    ```
+
+    The application will be available at `http://localhost:5000`.
+
+## scripts
+
+-   `npm run dev`: Starts the frontend development server.
+-   `npm run dev:api`: Starts the backend API server.
+-   `npm run dev:all`: Starts both the frontend and backend servers.
+-   `npm run build`: Builds the application for production.
+-   `npm run lint`: Lints the codebase.
+-   `npm run preview`: Previews the production build.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/your-username/godex/issues).
+
+## 📝 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
