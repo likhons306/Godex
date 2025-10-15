@@ -18,6 +18,7 @@ Godex is a modern web application that provides an intelligent coding assistant 
 ## Tech Stack
 
 - **Frontend**: React 19 with TypeScript
+- **Backend**: Express 5 with TypeScript (tsx)
 - **Build Tool**: Vite 7
 - **AI SDK**: Vercel AI SDK (@ai-sdk/google)
 - **AI Model**: Google Gemini 2.5 Pro with thinking mode
@@ -29,21 +30,46 @@ Godex is a modern web application that provides an intelligent coding assistant 
 ## Project Structure
 
 ```
+├── server/
+│   └── api.js                  # Backend API server (Express)
 ├── src/
 │   ├── lib/
-│   │   └── gemini.ts          # Gemini API integration
+│   │   ├── gemini.ts           # Gemini API integration
+│   │   └── api-client.ts       # Frontend API client
 │   ├── App.tsx                 # Main application component
 │   ├── App.css                 # Application styles
 │   ├── index.css               # Global styles
 │   └── main.tsx                # Entry point
 ├── public/                     # Static assets
+├── test-godex.js               # Backend unit tests
+├── test-integration.js         # Full stack integration tests
 ├── vite.config.ts              # Vite configuration
 └── package.json                # Dependencies
 ```
 
+## Architecture
+
+### Secure Backend-Frontend Architecture
+
+Godex uses a secure client-server architecture to protect API keys and enable production-ready deployment:
+
+```
+┌─────────────┐         ┌──────────────┐         ┌──────────────┐
+│   Browser   │  HTTP   │   Backend    │   AI    │   Gemini     │
+│  (React)    │ ◄────► │   API        │  SDK    │   2.5 Pro    │
+│  Port 5000  │         │  Port 3001   │ ◄────► │  (Google)    │
+└─────────────┘         └──────────────┘         └──────────────┘
+```
+
+**Benefits:**
+- API keys never exposed to the browser
+- Scalable backend for rate limiting and caching
+- Clear separation of concerns
+- Production-ready architecture
+
 ## Environment Variables
 
-- `VITE_GEMINI_API_KEY`: Your Google Gemini API key (get it from https://ai.google.dev/)
+- `GOOGLE_GENERATIVE_AI_API_KEY`: Your Google Gemini API key (get it from https://aistudio.google.com/app/apikey)
 
 ## Key Capabilities
 
@@ -64,7 +90,38 @@ Godex is a modern web application that provides an intelligent coding assistant 
 - Error handling and loading states
 - Quick suggestion prompts
 
+## Testing
+
+Godex has comprehensive test coverage to ensure all features work correctly:
+
+### Test Suites
+
+1. **Backend Unit Tests** (`test-godex.js`)
+   - Tests Gemini API integration
+   - Verifies streaming functionality
+   - Validates reasoning/thinking mode
+   - Checks code analysis capabilities
+   - Run with: `node test-godex.js`
+
+2. **Integration Tests** (`test-integration.js`)
+   - End-to-end testing of full stack
+   - API health checks
+   - Message streaming (SSE)
+   - Code analysis endpoints
+   - Run with: `node test-integration.js`
+
+### Test Results
+All tests passing (8/8) - See TEST_RESULTS.md for detailed report
+
 ## Recent Changes
+
+**October 15, 2025 - v2.1 - Production Ready**
+- **Security Enhancement**: Implemented secure backend-frontend architecture
+- Created Express backend API server (port 3001)
+- Updated frontend to use secure API client
+- Added comprehensive testing suite (8 tests, all passing)
+- Verified all AI SDK features working correctly
+- Created detailed test results documentation
 
 **October 15, 2025 - v2.0**
 - **Major Upgrade**: Migrated to Vercel AI SDK for better streaming and integration
@@ -82,12 +139,33 @@ Godex is a modern web application that provides an intelligent coding assistant 
 
 ## Development
 
-The application runs on port 5000 with Vite's dev server configured for the Replit environment.
+### Running the Application
+
+Two workflows are configured and running:
+
+1. **Godex (Frontend)** - Port 5000
+   - Command: `npm run dev`
+   - Vite dev server with HMR
+   - Accessible via browser preview
+
+2. **Backend API** - Port 3001
+   - Command: `npm run dev:api`
+   - Express server with AI SDK integration
+   - Handles secure API requests
+
+### API Endpoints
+
+- `GET /health` - Health check endpoint
+- `POST /api/message` - Send message (non-streaming)
+- `POST /api/stream` - Stream message (SSE)
+- `POST /api/analyze` - Analyze code
 
 ## Architecture Notes
 
-- Uses `@google/genai` SDK for Gemini API integration
+- Secure backend-frontend separation
+- API keys protected on server side
+- Server-Side Events (SSE) for streaming
 - Implements conversation history management
 - Custom markdown renderer with code syntax highlighting
 - Responsive CSS design with CSS custom properties
-- Environment-aware configuration (Vite env vars)
+- Production-ready deployment architecture

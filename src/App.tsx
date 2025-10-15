@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { streamMessage, type Message } from './lib/gemini';
+import { streamMessageFromAPI } from './lib/api-client';
+import type { Message } from './lib/gemini';
 import './App.css';
 
 function App() {
@@ -56,8 +57,8 @@ function App() {
       // Add the message to the list
       setMessages(prev => [...prev, tempMessage]);
       
-      // Stream the response (streamMessage will add the userInput to history internally)
-      await streamMessage(
+      // Stream the response (streamMessageFromAPI will add the userInput to history internally)
+      await streamMessageFromAPI(
         messages,
         userInput,
         // On each chunk, update the message content
