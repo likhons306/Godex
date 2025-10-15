@@ -1,8 +1,8 @@
-# Godex - Now with Codex-Style Personality! 🎉
+# Godex - Now with Godex-Style Personality! 🎉
 
 ## What Changed
 
-Godex has been upgraded to match Codex's personality and communication style:
+Godex has been upgraded to match Godex's personality and communication style:
 
 ### Personality Traits (Codex-Style)
 - ✅ **Concise**: Direct responses without unnecessary verbosity
