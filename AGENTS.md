@@ -56,3 +56,10 @@ ALL files tracked by GitHub (e.g., lint errors, code smells, comments, etc.)
 4. NEVER modify or write to:
    `/maintainable/DO_NOT_ADD_ANYTHING_HERE_FOR_HUMAN.md`
 5. Commit changes to the appropriate branch with messages summarizing fixes.
+Should check
+ 
+/maintainable/todo.md
+/maintainable/error.md
+/maintainable/DO_NOT_ADD_ANYTHING_HERE_FOR_HUMAN.md
+
+•	Commit those files automatically to a bot branch
