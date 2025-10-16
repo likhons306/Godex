@@ -72,7 +72,11 @@ The backend is a lightweight Express.js server.
 -   **`/api/stream` Endpoint:** This endpoint receives the user's prompt and the conversation history from the frontend. It then uses the Vercel AI SDK (`@ai-sdk/google`) to make a streaming request to the Google Gemini API. The response from Gemini is then streamed back to the frontend in real-time.
 -   **Environment Variables:** The backend requires a `GOOGLE_GENERATIVE_AI_API_KEY` environment variable to authenticate with the Gemini API.
 
-## 6. Data Flow & Chat Logic
+## 6. Authentication
+
+The application uses GitHub OAuth for user authentication, handled by NextAuth.js. For more details on the authentication flow and configuration, see the [authentication documentation](./authentication.md).
+
+## 7. Data Flow & Chat Logic
 
 The chat functionality follows a clear and simple data flow:
 

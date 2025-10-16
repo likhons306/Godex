@@ -25,6 +25,13 @@
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-container {
+  /* This will be handled by the flexbox on the parent */
 }
 
 .logo {
