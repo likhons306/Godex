@@ -1,4 +1,6 @@
 import express from 'express';
+import NextAuth from 'next-auth';
+import { authOptions } from './auth.js';
 import { streamMessage, sendMessage, analyzeCode } from '../src/lib/gemini.ts';
 import { Parser } from 'xml2js';
 
@@ -10,12 +12,18 @@ app.use(express.json());
 // Enable CORS for local development
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
   next();
+});
+
+// NextAuth route
+app.all('/api/auth/*', (req, res) => {
+  req.headers['x-forwarded-host'] = req.headers.host;
+  return NextAuth.default(req, res, authOptions);
 });
 
 // Health check endpoint
