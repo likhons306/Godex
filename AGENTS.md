@@ -38,3 +38,21 @@ The Godex application is built with the following technologies. You should be fa
 6.  **Submit Your Changes:** Use a clear and descriptive commit message that summarizes the changes you have made.
 
 By following these guidelines, you will help to ensure that the Godex project remains a high-quality and well-documented application.
+
+You should Follow 
+.instractions/Instractions.md
+
+✅ Before generate everything
+ALL files tracked by GitHub (e.g., lint errors, code smells, comments, etc.)
+
+## Task Processing Instructions for AI Agents
+
+1. Read `/maintainable/todo.md` and `/maintainable/error.md` to determine pending fixes.
+2. For each entry:
+   - If it refers to a failing test or console error, attempt to locate the source file and implement a correction.
+   - If the task requires documentation, update or create a relevant file in `/docs`.
+3. After resolving an issue:
+   - Remove or mark it as completed in the markdown file.
+4. NEVER modify or write to:
+   `/maintainable/DO_NOT_ADD_ANYTHING_HERE_FOR_HUMAN.md`
+5. Commit changes to the appropriate branch with messages summarizing fixes.
