@@ -298,4 +298,81 @@ OpenGraph for Java - Small Java class used to represent the Open Graph protocol.
 RDF::RDFa::Parser - Perl RDFa parser which understands the Open Graph protocol.
 The Open Graph protocol was originally created at Facebook and is inspired by Dublin Core, link-rel canonical, Microformats, and RDFa. The specification described on this page is available under the Open Web Foundation Agreement, Version 0.9. This website is Open Source.
 
+✅ ACCESSIBILITY
 
+MUST
+	•	Use semantic HTML for all interactive elements (buttons, links, forms)
+	•	Support full keyboard navigation without traps
+	•	Use ARIA roles only when native elements can’t express intent
+	•	Maintain WCAG AA contrast minimums
+
+SHOULD
+	•	Provide alt text, captions, and transcripts for all media
+	•	Respect text scaling and prefers-reduced-motion
+	•	Label and group related form inputs clearly
+
+NEVER
+	•	Convey meaning using only color, shape, or position
+	•	Hide focus indicators
+	•	Replace native elements with inaccessible custom components
+
+⸻
+
+⚡ PERFORMANCE
+
+MUST
+	•	Lazy-load nonessential assets
+	•	Use compressed and optimized bundles/media
+	•	Prevent layout shift and loading jitter
+
+SHOULD
+	•	Apply code-splitting and tree-shaking
+	•	Use HTTP/service worker/CDN caching
+	•	Inline only critical CSS
+
+NEVER
+	•	Block rendering with unnecessary scripts
+	•	Ship unused libraries or polyfills
+	•	Require client-side JS for server-renderable content
+
+⸻
+
+✨ DELIGHT
+
+MUST
+	•	Prioritize clarity and ease over clever UI tricks
+	•	Give instant feedback for actions (loading, success, errors)
+	•	Preserve progress or state wherever possible
+
+SHOULD
+	•	Use animation to reinforce meaning
+	•	Adapt to theme, motion, and language preferences
+	•	Anticipate errors and make recovery easy
+
+NEVER
+	•	Hide interactions or make actions irreversible
+	•	Overload users with UI clutter or decisions
+	•	Require sign-in before showing value
+
+⸻
+
+🔒 CODE CHANGE SAFETY (Your Added Requirement)
+
+MUST
+	•	Verify with absolute confidence (your “1000% rule”) that changes won’t break or regress other files, flows, or tests
+	•	Run tests or validation steps before committing changes
+	•	Contain changes to the smallest necessary scope
+
+SHOULD
+	•	Scan related modules before editing
+	•	Add/update tests or docs where behavior changes
+	•	Flag potentially impacted files during implementation
+
+NEVER
+	•	Modify shared logic or core codepaths without certainty
+	•	Push breaking or speculative edits
+	•	Silence errors instead of solving the root cause
+
+IF NOT 1000% SURE → ASK YOU FIRST.
+
+⸻
