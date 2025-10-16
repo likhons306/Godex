@@ -1,11 +1,14 @@
 import { google } from "@ai-sdk/google";
 import { streamText, generateText } from "ai";
+import { z } from "zod";
+import { search } from "@agent-infra/duckduckgo-search";
 
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
   reasoning?: string;
+  tool?: any;
 }
 
 // Stream messages with thinking/reasoning support using AI SDK
@@ -14,6 +17,8 @@ export async function streamMessage(
   userMessage: string,
   onChunk: (text: string) => void,
   onReasoning?: (reasoning: string) => void,
+  onToolCall?: (toolCall: any) => void,
+  onToolResult?: (toolResult: any) => void,
   onComplete?: () => void
 ) {
   try {
@@ -43,6 +48,18 @@ Format responses in markdown with syntax-highlighted code blocks. Be precise, sa
           content: userMessage,
         },
       ],
+      tools: {
+        search: {
+          description: "Search the web for information.",
+          parameters: z.object({
+            query: z.string().describe("The search query."),
+          }),
+          execute: async ({ query }) => {
+            const searchResults = await search(query);
+            return JSON.stringify(searchResults, null, 2);
+          },
+        },
+      },
       temperature: 0.7,
       providerOptions: {
         google: {
@@ -54,9 +71,18 @@ Format responses in markdown with syntax-highlighted code blocks. Be precise, sa
       },
     });
 
-    // Handle streaming chunks
-    for await (const chunk of result.textStream) {
-      onChunk(chunk);
+    for await (const part of result.fullStream) {
+      switch (part.type) {
+        case 'text-delta':
+          onChunk(part.textDelta);
+          break;
+        case 'tool-call':
+          onToolCall?.(part);
+          break;
+        case 'tool-result':
+          onToolResult?.(part);
+          break;
+      }
     }
 
     // Handle reasoning/thinking if available

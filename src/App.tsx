@@ -4,6 +4,13 @@ import type { Message as MessageType } from '@/lib/gemini';
 import { Conversation } from '@/components/ai-elements/conversation';
 import { Message, MessageContent } from '@/components/ai-elements/message';
 import { PromptInput, PromptInputTextarea } from '@/components/ai-elements/prompt-input';
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from '@/components/ai-elements/tool';
 import { Button } from '@/components/ui/button';
 import './App.css';
 
@@ -95,6 +102,34 @@ function App() {
         (reasoningText) => {
           reasoning = reasoningText;
         },
+        // On tool call
+        (toolCall) => {
+          setMessages(prev => {
+            const newMessages = [...prev];
+            const lastIndex = newMessages.length - 1;
+            if (newMessages[lastIndex]?.role === 'assistant') {
+              newMessages[lastIndex] = {
+                ...newMessages[lastIndex],
+                tool: { ...toolCall, state: 'input-available' },
+              };
+            }
+            return newMessages;
+          });
+        },
+        // On tool result
+        (toolResult) => {
+          setMessages(prev => {
+            const newMessages = [...prev];
+            const lastIndex = newMessages.length - 1;
+            if (newMessages[lastIndex]?.role === 'assistant') {
+              newMessages[lastIndex] = {
+                ...newMessages[lastIndex],
+                tool: { ...toolResult, state: 'output-available' },
+              };
+            }
+            return newMessages;
+          });
+        },
         // On complete
         () => {
           // Update the final message with reasoning
@@ -149,6 +184,20 @@ function App() {
                   </details>
                 )}
                 {msg.content}
+                {msg.tool && (
+                  <Tool defaultOpen>
+                    <ToolHeader
+                      type={msg.tool.toolName}
+                      state={msg.tool.state}
+                    />
+                    <ToolContent>
+                      <ToolInput input={msg.tool.args} />
+                      {msg.tool.state === 'output-available' && (
+                        <ToolOutput output={msg.tool.result} />
+                      )}
+                    </ToolContent>
+                  </Tool>
+                )}
               </MessageContent>
             </Message>
           ))}

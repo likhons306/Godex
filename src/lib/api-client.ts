@@ -9,6 +9,8 @@ export async function streamMessageFromAPI(
   userMessage: string,
   onChunk: (text: string) => void,
   onReasoning?: (reasoning: string) => void,
+  onToolCall?: (toolCall: any) => void,
+  onToolResult?: (toolResult: any) => void,
   onComplete?: () => void
 ) {
   try {
@@ -47,6 +49,10 @@ export async function streamMessageFromAPI(
             onChunk(data.content);
           } else if (data.type === 'reasoning') {
             onReasoning?.(data.content);
+          } else if (data.type === 'tool-call') {
+            onToolCall?.(data);
+          } else if (data.type === 'tool-result') {
+            onToolResult?.(data);
           } else if (data.type === 'complete') {
             onComplete?.();
           } else if (data.type === 'error') {

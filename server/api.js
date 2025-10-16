@@ -46,6 +46,12 @@ app.post('/api/stream', async (req, res) => {
         reasoning = reasoningText;
         res.write(`data: ${JSON.stringify({ type: 'reasoning', content: reasoningText })}\n\n`);
       },
+      (toolCall) => {
+        res.write(`data: ${JSON.stringify({ type: 'tool-call', ...toolCall })}\n\n`);
+      },
+      (toolResult) => {
+        res.write(`data: ${JSON.stringify({ type: 'tool-result', ...toolResult })}\n\n`);
+      },
       () => {
         res.write(`data: ${JSON.stringify({ type: 'complete', content: fullContent, reasoning })}\n\n`);
         res.end();
