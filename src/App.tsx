@@ -12,6 +12,7 @@ import {
   ToolInput,
   ToolOutput,
 } from '@/components/ai-elements/tool';
+import LoginButton from '@/components/LoginButton';
 import { Button } from '@/components/ui/button';
 import './App.css';
 
@@ -178,9 +179,6 @@ function App() {
         });
       };
 
-      let fullContent = '';
-      let reasoning = '';
-
       await streamMessageFromAPI(
         historyForApi,
         userInput,
@@ -227,6 +225,9 @@ function App() {
             <p className="tagline">
               Powered by Gemini 2.5 Pro • Advanced reasoning for code, math & STEM
             </p>
+            <div className="login-container">
+              <LoginButton />
+            </div>
           </div>
         </header>
 
