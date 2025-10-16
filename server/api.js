@@ -1,5 +1,6 @@
 import express from 'express';
 import { streamMessage, sendMessage, analyzeCode } from '../src/lib/gemini.ts';
+import { Parser } from 'xml2js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -81,7 +82,12 @@ app.post('/api/analyze', async (req, res) => {
   try {
     const { code, query } = req.body;
     const result = await analyzeCode(code, query);
-    res.json(result);
+
+    // Parse the XML response
+    const xmlParser = new Parser({ explicitArray: false, ignoreAttrs: false });
+    const jsonResult = await xmlParser.parseStringPromise(result.text);
+
+    res.json(jsonResult);
   } catch (error) {
     console.error('Analysis error:', error);
     res.status(500).json({ error: error.message });

@@ -168,6 +168,8 @@ export async function analyzeCode(
       model: google('gemini-2.5-pro'),
       system: `You are Godex, an expert code analyzer powered by Gemini 2.5 Pro.
 
+You MUST return your analysis in a structured XML format. The XML should have a root element named 'analysis', and child elements for 'summary', 'bugs', 'risks', and 'maintainability'. Each of these child elements should contain a list of 'issue' elements, with each 'issue' element having a 'severity' attribute (low, medium, high) and a 'description' attribute.
+
 Be concise, direct, and friendly. Provide actionable analysis and concrete suggestions for improvement. Focus on bugs, risks, and maintainability. Explain complex concepts clearly but efficiently.`,
       prompt: prompt,
       temperature: 0.3,
