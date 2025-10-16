@@ -1,7 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { streamText, generateText } from "ai";
 import { z } from "zod";
-import { search } from "@agent-infra/duckduckgo-search";
+import { DuckDuckGoSearchClient } from "@agent-infra/duckduckgo-search";
 
 export interface Message {
   role: 'user' | 'assistant';
@@ -55,7 +55,8 @@ Format responses in markdown with syntax-highlighted code blocks. Be precise, sa
             query: z.string().describe("The search query."),
           }),
           execute: async ({ query }) => {
-            const searchResults = await search(query);
+            const client = new DuckDuckGoSearchClient();
+            const searchResults = await client.search({ query });
             return JSON.stringify(searchResults, null, 2);
           },
         },
