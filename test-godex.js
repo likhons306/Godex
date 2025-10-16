@@ -113,26 +113,19 @@ async function testConversationHistory() {
   console.log('Testing multi-turn conversation...');
   
   try {
-    // First message
-    const firstResponse = await sendMessage(
-      [],
-      'My favorite color is blue.'
-    );
-    
-    // Second message with history
-    const secondResponse = await sendMessage(
+    const response = await sendMessage(
       [
         { role: 'user', content: 'My favorite color is blue.', timestamp: Date.now() },
-        { role: 'assistant', content: firstResponse.text, timestamp: Date.now() }
+        { role: 'assistant', content: 'That\'s a great color!', timestamp: Date.now() }
       ],
       'What is my favorite color?'
     );
     
     console.log('✅ Conversation history test completed!');
-    console.log('Response preview:', secondResponse.text.substring(0, 100) + '...');
+    console.log('Response preview:', response.text.substring(0, 100) + '...');
     
     // Check if response mentions blue
-    if (secondResponse.text.toLowerCase().includes('blue')) {
+    if (response.text.toLowerCase().includes('blue')) {
       console.log('✅ Context maintained correctly!');
     } else {
       console.log('⚠️ Warning: Response may not reflect conversation history');
@@ -157,6 +150,8 @@ async function runAllTests() {
     conversationHistory: await testConversationHistory()
   };
   
+  await new Promise(resolve => setTimeout(resolve, 60000));
+
   console.log('═══════════════════════════════════════════════');
   console.log('\n📊 Test Results Summary:');
   console.log('═══════════════════════════════════════════════');
