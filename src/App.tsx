@@ -178,9 +178,6 @@ function App() {
         });
       };
 
-      let fullContent = '';
-      let reasoning = '';
-
       await streamMessageFromAPI(
         historyForApi,
         userInput,

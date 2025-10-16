@@ -1,0 +1,74 @@
+name: Playwright Tests & Maintainable Artifacts
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test --reporter=json > playwright-report.json || true
+
+      - name: Create maintainable directory
+        run: mkdir -p maintainable
+
+      - name: Create maintainable files
+        run: |
+          touch maintainable/todo.md
+          touch maintainable/error.md
+          touch maintainable/DO_NOT_ADD_ANYTHING_HERE_FOR_HUMAN.md
+          echo "# DO NOT ADD ANYTHING HERE FOR HUMAN" > maintainable/DO_NOT_ADD_ANYTHING_HERE_FOR_HUMAN.md
+
+      - name: Parse test results and update artifacts
+        id: parse_results
+        run: |
+          echo "### Playwright Test Report" > maintainable/error.md
+          echo "### AI-Generated TODOs" > maintainable/todo.md
+
+          jq -c '.suites[].specs[] | {title: .title, status: .tests[0].status, error: .tests[0].results[0].error.message}' playwright-report.json | while read -r line; do
+            title=$(echo "$line" | jq -r .title)
+            status=$(echo "$line" | jq -r .status)
+            error=$(echo "$line" | jq -r .error)
+
+            if [ "$status" = "failed" ] || [ "$status" = "timedOut" ]; then
+              echo "#### ❌ FAILED: $title" >> maintainable/error.md
+              echo "\`\`\`" >> maintainable/error.md
+              echo "$error" >> maintainable/error.md
+              echo "\`\`\`" >> maintainable/error.md
+              echo "- [ ] Fix failing test: \`$title\`" >> maintainable/todo.md
+            elif [ "$status" = "skipped" ]; then
+              echo "- [ ] Address skipped test: \`$title\`" >> maintainable/todo.md
+            fi
+          done
+
+      - name: Commit artifacts
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update maintainable test artifacts [skip ci]"
+          branch: ${{ github.head_ref || github.ref_name }}-bot
+          commit_user_name: "Jules the AI Engineer"
+          commit_user_email: "jules@example.com"
+          commit_author: "Jules the AI Engineer <jules@example.com>"
+          file_pattern: "maintainable/*"
+          push_options: "--force"
+          skip_dirty_check: false
+          skip_fetch: true
+          create_branch: true
